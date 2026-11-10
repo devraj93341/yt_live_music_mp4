@@ -1,0 +1,958 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light dark">
+  <title>SongStream - 24/7 YouTube Live Music Studio</title>
+  <link rel="stylesheet" href="/static/css/style.css?v=14">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+
+  <!-- Slideable Menu Bar (Side Drawer) -->
+  <div id="sideMenuOverlay" class="side-menu-overlay" aria-hidden="true"></div>
+
+  <!-- Floating Quick Menu Handle on Left Edge -->
+  <button id="btnFloatingMenuToggle" class="floating-menu-handle" aria-label="Open Studio Menu" title="Open Slideable Menu Bar">
+    <span class="handle-icon">☰</span>
+    <span class="handle-text">MENU</span>
+  </button>
+
+  <aside id="sideMenuBar" class="side-menu-drawer" role="navigation" aria-label="Main Studio Navigation">
+    <div class="side-menu-header">
+      <div class="side-menu-brand">
+        <div class="brand-logo sm-logo">
+          <svg viewBox="0 0 24 24">
+            <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/>
+          </svg>
+        </div>
+        <div>
+          <div class="side-menu-title">Studio Menu</div>
+          <div class="side-menu-subtitle">Slideable Navigation & Tools</div>
+        </div>
+      </div>
+      <button id="btnCloseSideMenu" class="btn-close-side-menu" aria-label="Close menu" title="Close Menu (Esc)">
+        ✕
+      </button>
+    </div>
+
+    <!-- Menu Navigation Items -->
+    <div class="side-menu-scrollable">
+      <nav class="side-menu-nav">
+        
+        <div class="side-menu-group-title">Broadcast Modes</div>
+
+        <!-- 1. Music Radio & Sub-Options -->
+        <div class="side-menu-item-group">
+          <button class="side-menu-item active" data-target-tab="tabPlaylist" data-mode="radio" data-sub="subViewTracks">
+            <span class="side-menu-item-icon">📻</span>
+            <div class="side-menu-item-text">
+              <span class="item-title">Music Radio</span>
+              <span class="item-desc">24/7 Lo-Fi & Audio Stream</span>
+            </div>
+            <span class="item-badge" id="sideBadgeMusic">Active</span>
+          </button>
+          <div class="side-menu-subitems">
+            <button class="side-menu-subitem active" data-target-tab="tabPlaylist" data-mode="radio" data-sub="subViewTracks">
+              <span class="subitem-icon">🎵</span>
+              <span class="subitem-label">Audio Tracks Queue</span>
+              <span id="sideTracksCount" class="subitem-meta">0</span>
+            </button>
+            <button class="side-menu-subitem" data-target-tab="tabPlaylist" data-mode="radio" data-sub="subViewVisuals">
+              <span class="subitem-icon">🎨</span>
+              <span class="subitem-label">Artwork & Visualizer</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- 2. Direct Video -->
+        <button class="side-menu-item" data-target-tab="tabDirectVideo" data-mode="video">
+          <span class="side-menu-item-icon">🎬</span>
+          <div class="side-menu-item-text">
+            <span class="item-title">Direct Video</span>
+            <span class="item-desc">Broadcast Standalone MP4</span>
+          </div>
+          <span class="item-badge" id="sideBadgeVideo" style="display: none;">Active</span>
+        </button>
+
+        <!-- 3. Playlist Play -->
+        <button class="side-menu-item" data-target-tab="tabPlaylistPlay" data-mode="playlist_play">
+          <span class="side-menu-item-icon">📑</span>
+          <div class="side-menu-item-text">
+            <span class="item-title">Playlist Play</span>
+            <span class="item-desc">Multi-Video Sequential Broadcast</span>
+          </div>
+          <span class="item-badge" id="sideBadgePlaylist" style="display: none;">Active</span>
+        </button>
+
+        <div class="side-menu-group-title">Studio Configuration</div>
+
+        <!-- 4. YouTube Stream Key -->
+        <button class="side-menu-item" data-target-tab="tabSettings" data-focus="streamKey">
+          <span class="side-menu-item-icon">🔑</span>
+          <div class="side-menu-item-text">
+            <span class="item-title">YouTube Stream Key</span>
+            <span class="item-desc">Credentials & Stream Setup</span>
+          </div>
+        </button>
+
+        <!-- 5. Broadcast Encoder -->
+        <button class="side-menu-item" data-target-tab="tabSettings" data-focus="encoder">
+          <span class="side-menu-item-icon">⚙️</span>
+          <div class="side-menu-item-text">
+            <span class="item-title">Broadcast Quality</span>
+            <span class="item-desc">Resolution, FPS & Bitrate</span>
+          </div>
+        </button>
+
+        <!-- 6. Now Playing Badge -->
+        <button class="side-menu-item" data-target-tab="tabPlaylist" data-mode="radio" data-sub="subViewVisuals" data-focus="badge">
+          <span class="side-menu-item-icon">🎛️</span>
+          <div class="side-menu-item-text">
+            <span class="item-title">Now Playing Badge</span>
+            <span class="item-desc">Custom Size, Colors & Label</span>
+          </div>
+        </button>
+
+        <!-- 7. Stream Banner Title -->
+        <button class="side-menu-item" data-target-tab="tabPlaylist" data-mode="radio" data-sub="subViewVisuals" data-focus="bannerTitle">
+          <span class="side-menu-item-icon">🏷️</span>
+          <div class="side-menu-item-text">
+            <span class="item-title">Stream Banner Title</span>
+            <span class="item-desc">Edit Header & Live Display</span>
+          </div>
+        </button>
+      </nav>
+
+      <!-- Quick Broadcast Controls in Menu Drawer -->
+      <div class="side-menu-footer">
+        <div class="side-menu-group-title" style="padding-left: 0; margin-bottom: 8px;">Quick Broadcast Controls</div>
+        <div class="side-menu-actions">
+          <button id="sideBtnGoLive" class="btn btn-live" style="width: 100%; justify-content: center;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+              <circle cx="12" cy="12" r="10"/>
+            </svg>
+            Go Live
+          </button>
+          <button id="sideBtnStartTest" class="btn btn-secondary" style="width: 100%; justify-content: center;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M8 5v14l11-7z"/>
+            </svg>
+            Test Stream
+          </button>
+          <button id="sideBtnStopStream" class="btn btn-danger" style="width: 100%; justify-content: center; display: none;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+              <rect x="6" y="6" width="12" height="12"/>
+            </svg>
+            Stop Stream
+          </button>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Top Header Bar -->
+  <header class="app-header">
+    <div class="brand-section">
+      <button id="btnToggleSideMenu" class="btn-menu-toggle" aria-label="Open Navigation Menu" title="Open Slideable Menu Bar">
+        <span class="hamburger-bar"></span>
+        <span class="hamburger-bar"></span>
+        <span class="hamburger-bar"></span>
+      </button>
+      <div class="brand-logo">
+        <svg viewBox="0 0 24 24">
+          <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/>
+        </svg>
+      </div>
+      <div>
+        <h1 class="brand-title">SongStream <span class="brand-tag">Studio</span></h1>
+      </div>
+    </div>
+
+    <!-- Status & Metrics Cluster -->
+    <div class="stream-status-cluster">
+      <div id="statusBadge" class="status-badge idle">
+        <span class="pulse-dot"></span>
+        <span id="statusText">Offline</span>
+      </div>
+
+      <div class="metrics-row">
+        <div class="metric-pill">Uptime: <strong id="uptimeMetric">00:00:00</strong></div>
+        <div class="metric-pill">FPS: <strong id="fpsMetric">0.0</strong></div>
+        <div class="metric-pill">Bitrate: <strong id="bitrateMetric">0 kbps</strong></div>
+        <div class="metric-pill">Speed: <strong id="speedMetric">0.0x</strong></div>
+      </div>
+    </div>
+
+    <!-- Main Header Action Buttons -->
+    <div class="header-actions">
+      <button id="btnStartLive" class="btn btn-live">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+          <circle cx="12" cy="12" r="10"/>
+        </svg>
+        Go Live on YouTube
+      </button>
+
+      <button id="btnStartTest" class="btn btn-secondary" title="Test stream locally without broadcasting to YouTube">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M8 5v14l11-7z"/>
+        </svg>
+        Test Stream
+      </button>
+
+      <button id="btnStopTestStream" class="btn btn-warning" style="display: none;" title="Immediately stop local test stream">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+          <rect x="6" y="6" width="12" height="12"/>
+        </svg>
+        Stop Test Stream
+      </button>
+
+      <button id="btnStopStream" class="btn btn-danger" style="display: none;" title="Stop live YouTube broadcast">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+          <rect x="6" y="6" width="12" height="12"/>
+        </svg>
+        Stop Broadcast
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Grid Workspace -->
+  <main class="main-container">
+    
+    <!-- Left Column: Video Canvas Monitor & Player Controls -->
+    <section class="left-column">
+      
+      <!-- 16:9 Live Canvas Monitor Card -->
+      <div class="preview-card">
+        <div class="card-header">
+          <div>
+            <div class="card-title">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="2" y="3" width="20" height="14" rx="2" ry="2"/>
+                <line x1="8" y1="21" x2="16" y2="21"/>
+                <line x1="12" y1="17" x2="12" y2="21"/>
+              </svg>
+              Live Broadcast Monitor
+            </div>
+            <div class="card-subtitle">Real-time studio preview with dynamic overlays and visualizer</div>
+          </div>
+          <span id="monitorResolutionTag" class="metric-pill">1280x720</span>
+        </div>
+
+        <div class="monitor-viewport">
+          <canvas id="previewCanvas" width="1280" height="720"></canvas>
+          
+          <!-- Top Overlay Title -->
+          <div id="overlayTopTitle" class="overlay-top-title">SongStream 24/7 Radio</div>
+
+          <!-- Bottom Left Now Playing Badge -->
+          <div id="overlayNowPlaying" class="overlay-now-playing design-pill align-left">
+            <div class="overlay-badge-header">
+              <div class="overlay-pulse-bars">
+                <span></span><span></span><span></span><span></span>
+              </div>
+              <span id="overlaySongLabel" class="overlay-song-label">Now Playing</span>
+            </div>
+            <div class="overlay-song-meta">
+              <span id="overlaySongTitle" class="overlay-song-title">Midnight Coffee</span>
+              <span id="overlaySongArtist" class="overlay-song-artist">Lofi Ambient Studio</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- In-Browser Player Bar -->
+        <div class="player-controls-bar">
+          <div class="player-left">
+            <button id="btnPlayerPlay" class="btn btn-primary btn-sm" title="Play / Pause">
+              <svg id="playIcon" width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M8 5v14l11-7z"/>
+              </svg>
+              <svg id="pauseIcon" width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style="display: none;">
+                <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>
+              </svg>
+            </button>
+            <button id="btnPlayerStop" class="btn btn-secondary btn-sm" title="Stop">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                <rect x="6" y="6" width="12" height="12"/>
+              </svg>
+            </button>
+            <button id="btnPlayerNext" class="btn btn-secondary btn-sm" title="Next">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/>
+              </svg>
+            </button>
+          </div>
+
+          <div class="player-center">
+            <div class="scrub-container">
+              <span id="playerCurrentTime" class="time-label">00:00</span>
+              <input id="playerScrub" type="range" class="scrub-bar" min="0" max="100" value="0">
+              <span id="playerTotalTime" class="time-label">00:00</span>
+            </div>
+          </div>
+
+          <div class="player-right">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+              <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/>
+            </svg>
+            <input id="playerVolume" type="range" class="scrub-bar" style="width: 70px;" min="0" max="1" step="0.05" value="0.8">
+          </div>
+        </div>
+      </div>
+
+      <!-- Real-time Console Log Card -->
+      <div class="console-card">
+        <div class="card-header">
+          <div class="card-title">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="4 17 10 11 4 5"/>
+              <line x1="12" y1="19" x2="20" y2="19"/>
+            </svg>
+            FFmpeg Broadcast Console
+          </div>
+          <div style="display: flex; gap: 8px; align-items: center;">
+            <button id="btnToggleConsole" class="btn btn-secondary btn-sm" title="Toggle console view">Minimize</button>
+            <button id="btnClearConsole" class="btn btn-secondary btn-sm">Clear</button>
+            <span id="wsStatusPill" class="metric-pill">Connecting...</span>
+          </div>
+        </div>
+        <div id="consoleLogs" class="console-body">
+          <div class="log-line info">[System] SongStream Studio initialized. Ready to broadcast.</div>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- Right Column: Studio Mode & Content Controller -->
+    <aside class="right-column">
+      
+      <!-- Active Section Status Bar (Quick Menu Access) -->
+      <div class="active-section-bar">
+        <div class="active-section-info">
+          <span id="activeSectionIcon" class="active-section-icon">📻</span>
+          <span id="activeSectionTitle" class="active-section-title">Music Radio</span>
+          <span id="activeSectionModeBadge" class="active-section-mode-badge">Active Mode</span>
+        </div>
+        <button id="btnQuickOpenMenu" class="btn-quick-open-menu" title="Open Slideable Menu Bar" aria-label="Open Studio Menu">
+          <span>☰</span> Studio Menu
+        </button>
+      </div>
+
+      <!-- TAB 1: MUSIC RADIO (AUDIO & ARTWORK COMBINED) -->
+      <div id="tabPlaylist" class="tab-content active">
+        <div class="panel-card">
+          <!-- Sub-Tab Header Switcher -->
+          <div class="sub-tab-pill-toggle">
+            <button id="btnSubTabTracks" class="sub-tab-pill active" type="button">
+              🎵 Audio Tracks
+            </button>
+            <button id="btnSubTabVisuals" class="sub-tab-pill" type="button">
+              🎨 Artwork & Visualizer
+            </button>
+          </div>
+
+          <!-- SUB-VIEW A: AUDIO TRACKS -->
+          <div id="subViewTracks" class="sub-tab-content active">
+            <div class="playlist-header-actions">
+              <div>
+                <div class="card-title">Music Tracks Queue</div>
+                <div id="playlistMetaSummary" class="card-subtitle">0 tracks • 00:00 total</div>
+              </div>
+              <div style="display: flex; gap: 6px;">
+                <button id="btnLoadDemoTracks" class="btn btn-secondary btn-sm" title="Re-generate demo lo-fi chill tracks">
+                  + Demo
+                </button>
+                <button id="btnClearPlaylist" class="btn btn-danger btn-sm" title="Remove all uploaded tracks">
+                  🗑 Clear All
+                </button>
+              </div>
+            </div>
+
+            <!-- Drag and drop zone -->
+            <div id="audioDropzone" class="dropzone">
+              <div class="dropzone-icon">🎵</div>
+              <div class="dropzone-text">
+                <strong>Drag & drop audio files here</strong> or click to browse
+              </div>
+              <div class="help-text" style="margin-top: 4px;">Supports MP3, WAV, AAC, FLAC, OGG</div>
+              <input type="file" id="audioFileInput" multiple accept=".mp3,.wav,.aac,.flac,.ogg,.m4a" style="display: none;">
+            </div>
+
+            <!-- Select All / Filter Bar for Tracks -->
+            <div id="tracksSelectBar" class="select-all-bar" style="display: none;">
+              <span id="tracksSelectSummary" class="select-summary-text">0 of 0 tracks selected to play</span>
+              <div class="select-all-actions">
+                <button type="button" id="btnSelectAllTracks" class="btn-select-pill">✓ Select All</button>
+                <button type="button" id="btnDeselectAllTracks" class="btn-select-pill">⊘ Deselect All</button>
+              </div>
+            </div>
+
+            <!-- Track items list -->
+            <div id="trackList" class="track-list">
+              <!-- Dynamic tracks injected via JS -->
+            </div>
+          </div>
+
+          <!-- SUB-VIEW B: BACKGROUND ARTWORK & VISUALIZER -->
+          <div id="subViewVisuals" class="sub-tab-content">
+            <div class="playlist-header-actions">
+              <div>
+                <div class="card-title">Music Background Artwork / Visualizer</div>
+                <div class="card-subtitle">Plays strictly with Music Radio audio tracks (never mixes or syncs with video menus)</div>
+              </div>
+              <div style="display: flex; gap: 6px;">
+                <button id="btnUploadVisual" class="btn btn-secondary btn-sm">
+                  + Upload
+                </button>
+                <button id="btnClearVisuals" class="btn btn-danger btn-sm" title="Remove custom background uploads">
+                  🗑 Clear
+                </button>
+              </div>
+              <input type="file" id="visualFileInput" accept="image/*,video/mp4,video/webm" style="display: none;">
+            </div>
+
+            <!-- Visuals Grid -->
+            <div id="visualsGrid" class="visuals-grid">
+              <!-- Dynamic visual thumbnails injected via JS -->
+            </div>
+
+            <hr style="border: 0; border-top: 1px solid var(--border-subtle); margin: 6px 0;">
+
+            <!-- Visualizer & Overlay Customization -->
+            <div class="card-title" style="font-size: 0.9rem;">Visualizer & On-Screen Style</div>
+
+            <div class="form-grid-2">
+              <div class="form-group">
+                <label class="form-label" for="cfgVisualizerStyle">Visualizer Style</label>
+                <select id="cfgVisualizerStyle" class="form-control">
+                  <option value="waves">Dynamic Waveform (Line)</option>
+                  <option value="spectrum">Frequency Spectrum (Bars)</option>
+                  <option value="none">Disabled (Clean Video)</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="cfgVisualizerColor">Color Theme</label>
+                <select id="cfgVisualizerColor" class="form-control">
+                  <option value="cyan_neon">Neon Cyan / Blue</option>
+                  <option value="purple_neon">Electric Purple / Pink</option>
+                  <option value="sunset">Sunset Rose / Orange</option>
+                  <option value="matrix">Matrix Green</option>
+                  <option value="amber">Warm Amber / Gold</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-group" style="display: flex; flex-direction: column; gap: 8px;">
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <label class="form-label" for="cfgOverlayTitle" style="margin: 0; font-size: 0.82rem; font-weight: 600;">Stream Banner Title</label>
+                <span id="bannerAlignVal" style="font-size: 0.74rem; font-weight: 700; color: var(--accent-cyan);">Left • Up (Top)</span>
+              </div>
+              <input id="cfgOverlayTitle" type="text" class="form-control stream-banner-title-input" placeholder="e.g. SongStream 24/7 Lo-Fi Chill Radio">
+
+              <!-- Banner Alignment Presets -->
+              <div style="display: flex; gap: 5px;">
+                <button type="button" class="btn btn-secondary btn-sm preset-banner-align-btn active" data-align="left" style="flex: 1; font-size: 0.72rem; padding: 6px 0;">⬅ Left</button>
+                <button type="button" class="btn btn-secondary btn-sm preset-banner-align-btn" data-align="center" style="flex: 1; font-size: 0.72rem; padding: 6px 0;">⬌ Center</button>
+                <button type="button" class="btn btn-secondary btn-sm preset-banner-align-btn" data-align="right" style="flex: 1; font-size: 0.72rem; padding: 6px 0;">➡ Right</button>
+              </div>
+              <div style="display: flex; gap: 5px;">
+                <button type="button" class="btn btn-secondary btn-sm preset-banner-valign-btn active" data-valign="up" style="flex: 1; font-size: 0.72rem; padding: 6px 0;">⬆ Up (Top Screen)</button>
+                <button type="button" class="btn btn-secondary btn-sm preset-banner-valign-btn" data-valign="down" style="flex: 1; font-size: 0.72rem; padding: 6px 0;">⬇ Down (Bottom Screen)</button>
+              </div>
+
+              <!-- Banner Custom X, Y Location Coordinates -->
+              <div style="background: rgba(15, 23, 42, 0.45); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 8px; padding: 8px 10px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                  <label class="form-label" style="margin: 0; font-size: 0.75rem; font-weight: 600; color: var(--text-bright); display: flex; align-items: center; gap: 6px;">
+                    <input type="checkbox" id="chkBannerCustomCoordinates" style="accent-color: var(--accent-cyan); cursor: pointer;">
+                    <span>Custom X, Y Coordinates (% of Screen)</span>
+                  </label>
+                  <button type="button" id="btnResetBannerCoordinates" class="btn btn-secondary btn-sm" style="font-size: 0.65rem; padding: 2px 6px;">Reset</button>
+                </div>
+                
+                <div id="bannerCustomCoordControls" style="display: flex; flex-direction: column; gap: 6px; opacity: 0.5; pointer-events: none; transition: opacity 0.2s;">
+                  <!-- X Slider & Input (Left <-> Right) -->
+                  <div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2px;">
+                      <span style="font-size: 0.7rem; color: var(--text-dim);">X Position (Left ↔ Right):</span>
+                      <div style="display: flex; align-items: center; gap: 4px;">
+                        <input type="number" id="numBannerPosX" min="0" max="100" value="2" style="width: 50px; background: rgba(0, 0, 0, 0.5); border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 4px; color: var(--accent-cyan); font-weight: 700; font-size: 0.72rem; padding: 1px 4px; text-align: center;">
+                        <span style="font-size: 0.7rem; color: var(--text-dim);">%</span>
+                      </div>
+                    </div>
+                    <input id="rngBannerPosX" type="range" min="0" max="95" step="1" value="2" style="width: 100%; accent-color: var(--accent-cyan); cursor: pointer;">
+                  </div>
+
+                  <!-- Y Slider & Input (Up <-> Down) -->
+                  <div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2px;">
+                      <span style="font-size: 0.7rem; color: var(--text-dim);">Y Position (Up ↕ Down):</span>
+                      <div style="display: flex; align-items: center; gap: 4px;">
+                        <input type="number" id="numBannerPosY" min="0" max="100" value="3" style="width: 50px; background: rgba(0, 0, 0, 0.5); border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 4px; color: var(--accent-cyan); font-weight: 700; font-size: 0.72rem; padding: 1px 4px; text-align: center;">
+                        <span style="font-size: 0.7rem; color: var(--text-dim);">%</span>
+                      </div>
+                    </div>
+                    <input id="rngBannerPosY" type="range" min="0" max="95" step="1" value="3" style="width: 100%; accent-color: var(--accent-cyan); cursor: pointer;">
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-group" style="flex-direction: row; align-items: center; justify-content: space-between;">
+              <div>
+                <div class="form-label" style="margin-bottom: 2px;">Display "Now Playing" Badge</div>
+                <div class="help-text">Shows active song title & artist on-screen</div>
+              </div>
+              <input id="cfgShowNowPlaying" type="checkbox" checked style="width: 18px; height: 18px; cursor: pointer;">
+            </div>
+
+            <div class="form-group" id="groupNowPlayingConfig" style="margin-top: 10px; padding: 14px; background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border-subtle); border-radius: 8px; display: flex; flex-direction: column; gap: 14px;">
+              <!-- 1. Written Label Text Option -->
+              <div>
+                <label class="form-label" for="cfgNowPlayingLabel" style="font-size: 0.8rem; font-weight: 600; margin-bottom: 4px;">Badge Written Text</label>
+                <input id="cfgNowPlayingLabel" type="text" class="form-control" value="Now Playing" placeholder="e.g. Now Playing, Live Music, Currently Vibing..." style="font-size: 0.82rem;">
+              </div>
+
+              <!-- 2. Badge Design Style -->
+              <div>
+                <label class="form-label" style="font-size: 0.8rem; font-weight: 600; margin-bottom: 6px;">Badge Design Style</label>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(80px, 1fr)); gap: 5px;">
+                  <button type="button" class="btn btn-secondary btn-sm preset-design-btn active" data-design="pill" style="font-size: 0.72rem; padding: 6px 4px;">💊 Capsule Pill</button>
+                  <button type="button" class="btn btn-secondary btn-sm preset-design-btn" data-design="neon" style="font-size: 0.72rem; padding: 6px 4px;">⚡ Neon Glow</button>
+                  <button type="button" class="btn btn-secondary btn-sm preset-design-btn" data-design="outline" style="font-size: 0.72rem; padding: 6px 4px;">🔲 Cyber Tag</button>
+                  <button type="button" class="btn btn-secondary btn-sm preset-design-btn" data-design="gradient" style="font-size: 0.72rem; padding: 6px 4px;">🌈 Gradient</button>
+                  <button type="button" class="btn btn-secondary btn-sm preset-design-btn" data-design="minimal" style="font-size: 0.72rem; padding: 6px 4px;">✦ Minimal</button>
+                </div>
+              </div>
+
+              <!-- 3. Alignment Above Description -->
+              <div>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                  <label class="form-label" style="margin: 0; font-size: 0.8rem; font-weight: 600;">Alignment & Screen Location</label>
+                  <span id="nowPlayingAlignVal" style="font-size: 0.74rem; font-weight: 700; color: var(--accent-cyan);">Left • Down (Bottom)</span>
+                </div>
+                <div style="display: flex; gap: 5px; margin-bottom: 6px;">
+                  <button type="button" class="btn btn-secondary btn-sm preset-align-btn active" data-align="left" style="flex: 1; font-size: 0.72rem; padding: 6px 0;">⬅ Left</button>
+                  <button type="button" class="btn btn-secondary btn-sm preset-align-btn" data-align="center" style="flex: 1; font-size: 0.72rem; padding: 6px 0;">⬌ Center</button>
+                  <button type="button" class="btn btn-secondary btn-sm preset-align-btn" data-align="right" style="flex: 1; font-size: 0.72rem; padding: 6px 0;">➡ Right</button>
+                </div>
+                <div style="display: flex; gap: 5px; margin-bottom: 8px;">
+                  <button type="button" class="btn btn-secondary btn-sm preset-valign-btn" data-valign="up" style="flex: 1; font-size: 0.72rem; padding: 6px 0;">⬆ Up (Top Screen / High)</button>
+                  <button type="button" class="btn btn-secondary btn-sm preset-valign-btn active" data-valign="down" style="flex: 1; font-size: 0.72rem; padding: 6px 0;">⬇ Down (Bottom Screen / Low)</button>
+                </div>
+
+                <!-- Custom X, Y Location Coordinates -->
+                <div style="background: rgba(15, 23, 42, 0.45); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 8px; padding: 8px 10px;">
+                  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                    <label class="form-label" style="margin: 0; font-size: 0.75rem; font-weight: 600; color: var(--text-bright); display: flex; align-items: center; gap: 6px;">
+                      <input type="checkbox" id="chkCustomCoordinates" style="accent-color: var(--accent-cyan); cursor: pointer;">
+                      <span>Custom X, Y Coordinates (% of Screen)</span>
+                    </label>
+                    <button type="button" id="btnResetCoordinates" class="btn btn-secondary btn-sm" style="font-size: 0.65rem; padding: 2px 6px;">Reset</button>
+                  </div>
+                  
+                  <div id="customCoordControls" style="display: flex; flex-direction: column; gap: 6px; opacity: 0.5; pointer-events: none; transition: opacity 0.2s;">
+                    <!-- X Slider & Input (Left <-> Right) -->
+                    <div>
+                      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2px;">
+                        <span style="font-size: 0.7rem; color: var(--text-dim);">X Position (Left ↔ Right):</span>
+                        <div style="display: flex; align-items: center; gap: 4px;">
+                          <input type="number" id="numNowPlayingPosX" min="0" max="100" value="2" style="width: 50px; background: rgba(0, 0, 0, 0.5); border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 4px; color: var(--accent-cyan); font-weight: 700; font-size: 0.72rem; padding: 1px 4px; text-align: center;">
+                          <span style="font-size: 0.7rem; color: var(--text-dim);">%</span>
+                        </div>
+                      </div>
+                      <input id="rngNowPlayingPosX" type="range" min="0" max="95" step="1" value="2" style="width: 100%; accent-color: var(--accent-cyan); cursor: pointer;">
+                    </div>
+
+                    <!-- Y Slider & Input (Up <-> Down) -->
+                    <div>
+                      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2px;">
+                        <span style="font-size: 0.7rem; color: var(--text-dim);">Y Position (Up ↕ Down):</span>
+                        <div style="display: flex; align-items: center; gap: 4px;">
+                          <input type="number" id="numNowPlayingPosY" min="0" max="100" value="88" style="width: 50px; background: rgba(0, 0, 0, 0.5); border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 4px; color: var(--accent-cyan); font-weight: 700; font-size: 0.72rem; padding: 1px 4px; text-align: center;">
+                          <span style="font-size: 0.7rem; color: var(--text-dim);">%</span>
+                        </div>
+                      </div>
+                      <input id="rngNowPlayingPosY" type="range" min="0" max="95" step="1" value="88" style="width: 100%; accent-color: var(--accent-cyan); cursor: pointer;">
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 4. Written Text Size -->
+              <div>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                  <label class="form-label" for="cfgNowPlayingFontSize" style="margin: 0; font-size: 0.8rem; font-weight: 600;">Written Text Size</label>
+                  <span id="nowPlayingFontSizeVal" style="font-size: 0.78rem; font-weight: 700; color: var(--accent-cyan); background: rgba(0, 242, 254, 0.12); padding: 2px 8px; border-radius: 4px; border: 1px solid rgba(0, 242, 254, 0.3);">13px</span>
+                </div>
+                <input id="cfgNowPlayingFontSize" type="range" min="9" max="28" step="1" value="13" style="width: 100%; accent-color: var(--accent-cyan); cursor: pointer;">
+                <div style="display: flex; justify-content: space-between; gap: 4px; margin-top: 6px;">
+                  <button type="button" class="btn btn-secondary btn-sm preset-fsize-btn" data-size="10" style="flex: 1; padding: 3px 0; font-size: 0.68rem;">10px</button>
+                  <button type="button" class="btn btn-secondary btn-sm preset-fsize-btn" data-size="12" style="flex: 1; padding: 3px 0; font-size: 0.68rem;">12px</button>
+                  <button type="button" class="btn btn-secondary btn-sm preset-fsize-btn active" data-size="13" style="flex: 1; padding: 3px 0; font-size: 0.68rem;">13px</button>
+                  <button type="button" class="btn btn-secondary btn-sm preset-fsize-btn" data-size="16" style="flex: 1; padding: 3px 0; font-size: 0.68rem;">16px</button>
+                  <button type="button" class="btn btn-secondary btn-sm preset-fsize-btn" data-size="20" style="flex: 1; padding: 3px 0; font-size: 0.68rem;">20px</button>
+                  <button type="button" class="btn btn-secondary btn-sm preset-fsize-btn" data-size="24" style="flex: 1; padding: 3px 0; font-size: 0.68rem;">24px</button>
+                </div>
+              </div>
+
+              <!-- 5. Text Boldness / Weight -->
+              <div>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                  <label class="form-label" style="margin: 0; font-size: 0.8rem; font-weight: 600;">Text Boldness</label>
+                  <span id="nowPlayingWeightVal" style="font-size: 0.74rem; font-weight: 700; color: var(--accent-cyan);">Heavy (800)</span>
+                </div>
+                <div style="display: flex; gap: 4px;">
+                  <button type="button" class="btn btn-secondary btn-sm preset-weight-btn" data-weight="400" style="flex: 1; padding: 5px 0; font-size: 0.7rem; font-weight: 400;">Regular</button>
+                  <button type="button" class="btn btn-secondary btn-sm preset-weight-btn" data-weight="600" style="flex: 1; padding: 5px 0; font-size: 0.7rem; font-weight: 600;">Semi</button>
+                  <button type="button" class="btn btn-secondary btn-sm preset-weight-btn" data-weight="700" style="flex: 1; padding: 5px 0; font-size: 0.7rem; font-weight: 700;">Bold</button>
+                  <button type="button" class="btn btn-secondary btn-sm preset-weight-btn active" data-weight="800" style="flex: 1; padding: 5px 0; font-size: 0.7rem; font-weight: 800;">Heavy</button>
+                  <button type="button" class="btn btn-secondary btn-sm preset-weight-btn" data-weight="900" style="flex: 1; padding: 5px 0; font-size: 0.7rem; font-weight: 900;">Black</button>
+                </div>
+              </div>
+
+              <!-- 6. Text Capitalization -->
+              <div>
+                <label class="form-label" style="font-size: 0.8rem; font-weight: 600; margin-bottom: 6px;">Text Capitalization</label>
+                <div style="display: flex; gap: 6px;">
+                  <button type="button" class="btn btn-secondary btn-sm preset-transform-btn active" data-transform="uppercase" style="flex: 1; font-size: 0.7rem; padding: 5px 0;">UPPERCASE</button>
+                  <button type="button" class="btn btn-secondary btn-sm preset-transform-btn" data-transform="capitalize" style="flex: 1; font-size: 0.7rem; padding: 5px 0;">Title Case</button>
+                  <button type="button" class="btn btn-secondary btn-sm preset-transform-btn" data-transform="none" style="flex: 1; font-size: 0.7rem; padding: 5px 0;">As Typed</button>
+                </div>
+              </div>
+
+              <!-- 7. Color Selection Option -->
+              <div>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                  <label class="form-label" for="cfgNowPlayingColor" style="margin: 0; font-size: 0.8rem; font-weight: 600;">Text & Accent Color</label>
+                  <span id="nowPlayingColorCode" style="font-size: 0.75rem; font-family: monospace; font-weight: 700; color: var(--accent-cyan); background: rgba(0, 242, 254, 0.1); padding: 2px 6px; border-radius: 4px; border: 1px solid rgba(0, 242, 254, 0.3);">#00f2fe</span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                  <input id="cfgNowPlayingColor" type="color" value="#00f2fe" style="width: 36px; height: 32px; padding: 0; border: none; border-radius: 4px; cursor: pointer; background: transparent;" title="Pick custom color">
+                  <div style="display: flex; flex-wrap: wrap; gap: 5px; flex: 1;">
+                    <button type="button" class="preset-color-btn" data-color="#00f2fe" style="background: #00f2fe;" title="Neon Cyan / Blue"></button>
+                    <button type="button" class="preset-color-btn" data-color="#38bdf8" style="background: #38bdf8;" title="Sky Blue"></button>
+                    <button type="button" class="preset-color-btn" data-color="#2563eb" style="background: #2563eb;" title="Royal Blue"></button>
+                    <button type="button" class="preset-color-btn" data-color="#818cf8" style="background: #818cf8;" title="Soft Indigo"></button>
+                    <button type="button" class="preset-color-btn" data-color="#d946ef" style="background: #d946ef;" title="Neon Purple / Pink"></button>
+                    <button type="button" class="preset-color-btn" data-color="#22c55e" style="background: #22c55e;" title="Emerald Green"></button>
+                    <button type="button" class="preset-color-btn" data-color="#f59e0b" style="background: #f59e0b;" title="Warm Amber"></button>
+                    <button type="button" class="preset-color-btn" data-color="#ef4444" style="background: #ef4444;" title="Crimson Red"></button>
+                    <button type="button" class="preset-color-btn" data-color="#ffffff" style="background: #ffffff;" title="Crisp White"></button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 8. Overall Badge Scale -->
+              <div>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                  <label class="form-label" for="cfgNowPlayingScale" style="margin: 0; font-size: 0.8rem; font-weight: 600;">Overall Badge Scale</label>
+                  <span id="nowPlayingScaleValue" style="font-size: 0.78rem; font-weight: 700; color: var(--accent-cyan); background: rgba(0, 242, 254, 0.12); padding: 2px 8px; border-radius: 4px; border: 1px solid rgba(0, 242, 254, 0.3);">75%</span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                  <input id="cfgNowPlayingScale" type="range" min="40" max="160" step="5" value="75" style="flex: 1; accent-color: var(--accent-cyan); cursor: pointer;">
+                </div>
+                <div style="display: flex; justify-content: space-between; gap: 4px; margin-top: 8px;">
+                  <button type="button" class="btn btn-secondary btn-sm preset-size-btn" data-scale="50" style="flex: 1; padding: 3px 0; font-size: 0.7rem;" title="Extra Small">50%</button>
+                  <button type="button" class="btn btn-secondary btn-sm preset-size-btn" data-scale="65" style="flex: 1; padding: 3px 0; font-size: 0.7rem;" title="Small">65%</button>
+                  <button type="button" class="btn btn-secondary btn-sm preset-size-btn" data-scale="75" style="flex: 1; padding: 3px 0; font-size: 0.7rem;" title="Compact (Recommended)">75%</button>
+                  <button type="button" class="btn btn-secondary btn-sm preset-size-btn" data-scale="90" style="flex: 1; padding: 3px 0; font-size: 0.7rem;" title="Medium">90%</button>
+                  <button type="button" class="btn btn-secondary btn-sm preset-size-btn" data-scale="100" style="flex: 1; padding: 3px 0; font-size: 0.7rem;" title="Standard">100%</button>
+                  <button type="button" class="btn btn-secondary btn-sm preset-size-btn" data-scale="125" style="flex: 1; padding: 3px 0; font-size: 0.7rem;" title="Large">125%</button>
+                </div>
+              </div>
+              <div class="help-text" style="font-size: 0.72rem; margin: 0;">Customize written text, font size, boldness, design style, alignment and color in real time on the live monitor.</div>
+            </div>
+
+            <button id="btnSaveVisualsConfig" class="btn btn-primary" style="margin-top: 4px;">
+              Apply Visual Settings
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 2: DIRECT MP4 VIDEO -->
+      <div id="tabDirectVideo" class="tab-content">
+        <div class="panel-card">
+          <div class="playlist-header-actions">
+            <div>
+              <div class="card-title">Direct MP4 Video Stream</div>
+              <div class="card-subtitle">Broadcast standalone MP4 videos with native audio (100% isolated from music audio)</div>
+            </div>
+            <button id="btnUploadDirectVideo" class="btn btn-primary btn-sm">
+              + Upload MP4
+            </button>
+            <input type="file" id="directVideoFileInput" accept="video/mp4,video/webm,video/quicktime,video/x-matroska" style="display: none;">
+          </div>
+
+          <div id="videoDropzone" class="dropzone">
+            <div class="dropzone-icon">🎬</div>
+            <div class="dropzone-text">
+              <strong>Drag & drop MP4 video here</strong> to broadcast live
+            </div>
+            <div class="help-text" style="margin-top: 4px;">Supports MP4, MOV, WEBM, MKV with native stereo audio</div>
+          </div>
+
+          <div class="playlist-header-actions" style="margin-top: 6px;">
+            <div class="card-title">Available MP4 Videos</div>
+            <span id="videoCountLabel" class="help-text">0 videos</span>
+          </div>
+
+          <div id="videoList" class="track-list" style="max-height: 280px;">
+            <!-- Injected via JS -->
+          </div>
+
+          <div class="form-group" style="flex-direction: row; align-items: center; justify-content: space-between; margin-top: 8px;">
+            <div>
+              <div class="form-label" style="margin-bottom: 2px;">Loop MP4 Video Continuously</div>
+              <div class="help-text">Loops video 24/7 without disconnecting YouTube stream</div>
+            </div>
+            <input id="cfgLoopVideo" type="checkbox" checked style="width: 18px; height: 18px; cursor: pointer;">
+          </div>
+
+          <div class="form-group" style="flex-direction: row; align-items: center; justify-content: space-between; margin-top: 8px;">
+            <div>
+              <div class="form-label" style="margin-bottom: 2px;">Show Stream Banner Title</div>
+              <div class="help-text">Displays title banner on direct video broadcast and monitor</div>
+            </div>
+            <input id="cfgShowVideoBannerTitle" type="checkbox" style="width: 18px; height: 18px; cursor: pointer;">
+          </div>
+
+          <div class="form-group" style="margin-top: 10px;">
+            <label class="form-label" for="cfgVideoOverlayTitle">Stream Banner Title</label>
+            <input id="cfgVideoOverlayTitle" type="text" class="form-control stream-banner-title-input" placeholder="e.g. SongStream 24/7 Lo-Fi Chill Radio">
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 3: PLAYLIST PLAY (MULTI-VIDEO SEQUENTIAL BROADCAST) -->
+      <div id="tabPlaylistPlay" class="tab-content">
+        <div class="panel-card">
+          <div class="playlist-header-actions">
+            <div>
+              <div class="card-title">Video Playlist (Sequential Broadcast)</div>
+              <div id="playlistPlaySummary" class="card-subtitle">0 videos • 00:00 total • Plays one by one in order with native audio (isolated from music)</div>
+            </div>
+            <div style="display: flex; gap: 6px;">
+              <button id="btnUploadPlaylistPlay" class="btn btn-primary btn-sm">
+                + Upload Videos
+              </button>
+              <button id="btnClearPlaylistPlay" class="btn btn-danger btn-sm" title="Remove all videos from playlist">
+                🗑 Clear All
+              </button>
+            </div>
+            <input type="file" id="playlistPlayFileInput" multiple accept="video/mp4,video/webm,video/quicktime,video/x-matroska" style="display: none;">
+          </div>
+
+          <!-- Multi-video drag and drop dropzone -->
+          <div id="playlistPlayDropzone" class="dropzone">
+            <div class="dropzone-icon">📑</div>
+            <div class="dropzone-text">
+              <strong>Drag & drop multiple videos here</strong> or click to browse
+            </div>
+            <div class="help-text" style="margin-top: 4px;">Upload multiple MP4 videos to stream sequentially one-by-one in an infinite loop</div>
+          </div>
+
+          <div class="playlist-header-actions" style="margin-top: 10px;">
+            <div class="card-title" style="font-size: 0.92rem;">Broadcast Queue (Plays Top to Bottom)</div>
+            <span id="playlistPlayCountLabel" class="help-text">0 videos queued</span>
+          </div>
+
+          <!-- Select All / Filter Bar for Video Playlist -->
+          <div id="playlistPlaySelectBar" class="select-all-bar" style="display: none;">
+            <span id="playlistPlaySelectSummary" class="select-summary-text">0 of 0 videos selected to broadcast</span>
+            <div class="select-all-actions">
+              <button type="button" id="btnSelectAllVideos" class="btn-select-pill">✓ Select All</button>
+              <button type="button" id="btnDeselectAllVideos" class="btn-select-pill">⊘ Deselect All</button>
+            </div>
+          </div>
+
+          <!-- Video Playlist Items List -->
+          <div id="playlistPlayList" class="track-list" style="max-height: 380px;">
+            <!-- Dynamically rendered via JS with Up/Down buttons, preview, and delete -->
+          </div>
+
+          <div class="form-group" style="flex-direction: row; align-items: center; justify-content: space-between; margin-top: 10px;">
+            <div>
+              <div class="form-label" style="margin-bottom: 2px;">Show Stream Banner Title</div>
+              <div class="help-text">Displays title banner on playlist video broadcast and monitor</div>
+            </div>
+            <input id="cfgShowPlaylistBannerTitle" type="checkbox" style="width: 18px; height: 18px; cursor: pointer;">
+          </div>
+
+          <div class="form-group" style="margin-top: 10px;">
+            <label class="form-label" for="cfgPlaylistOverlayTitle">Stream Banner Title</label>
+            <input id="cfgPlaylistOverlayTitle" type="text" class="form-control stream-banner-title-input" placeholder="e.g. SongStream 24/7 Lo-Fi Chill Radio">
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 4: STREAM SETTINGS -->
+      <div id="tabSettings" class="tab-content">
+        <div class="panel-card">
+          <div class="playlist-header-actions">
+            <div>
+              <div class="card-title">YouTube Broadcast Setup</div>
+              <div class="card-subtitle">Configure stream key and broadcast quality</div>
+            </div>
+            <button id="btnOpenStreamKeyHelp" class="btn btn-secondary btn-sm" title="Guide to find YouTube Stream Key">
+              ❓ Where is my Key?
+            </button>
+          </div>
+
+          <!-- YouTube Stream Key -->
+          <div class="form-group">
+            <label class="form-label" for="cfgStreamKey">
+              <span>YouTube Stream Key <strong style="color: var(--status-live);">*</strong></span>
+              <span id="keyStatusBadge" style="font-size: 0.72rem; color: var(--text-dim);">Not Set</span>
+            </label>
+            <div class="input-with-button">
+              <input id="cfgStreamKey" type="password" class="form-control" placeholder="Paste your YouTube Stream Key here">
+              <button id="btnToggleKeyMask" class="btn btn-secondary btn-sm" type="button">Show</button>
+              <button id="btnClearStreamKey" class="btn btn-secondary btn-sm" type="button" title="Remove saved YouTube Stream Key" style="color: var(--status-live);">Remove</button>
+            </div>
+            <div class="help-text">Keep your stream key private. Never share it with anyone.</div>
+          </div>
+
+          <!-- Quick 1-Click Quality Presets -->
+          <div class="form-group" style="margin-top: 6px;">
+            <label class="form-label">Broadcast Quality Preset</label>
+            <div class="preset-selector-grid">
+              <button type="button" class="preset-card active" data-res="1920x1080" data-fps="30" data-vbr="4500k" data-abr="192k" data-preset="ultrafast">
+                <span class="preset-name">1080p Full HD</span>
+                <span class="preset-sub">30fps • 4.5 Mbps • Recommended</span>
+              </button>
+              <button type="button" class="preset-card" data-res="1920x1080" data-fps="60" data-vbr="6000k" data-abr="320k" data-preset="ultrafast">
+                <span class="preset-name">1080p Pro 60fps</span>
+                <span class="preset-sub">60fps • 6 Mbps • Ultra Smooth</span>
+              </button>
+              <button type="button" class="preset-card" data-res="1280x720" data-fps="30" data-vbr="3000k" data-abr="192k" data-preset="ultrafast">
+                <span class="preset-name">720p HD</span>
+                <span class="preset-sub">30fps • 3 Mbps • High Stability</span>
+              </button>
+              <button type="button" class="preset-card" data-res="3840x2160" data-fps="30" data-vbr="18000k" data-abr="320k" data-preset="ultrafast">
+                <span class="preset-name">4K Ultra HD</span>
+                <span class="preset-sub">30fps • 18 Mbps • High-End PCs</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Advanced Collapsible Settings -->
+          <details class="advanced-settings-details">
+            <summary class="advanced-settings-summary">⚙️ Advanced Encoder Options (Custom Bitrate & Resolution)</summary>
+            
+            <div style="margin-top: 14px; display: flex; flex-direction: column; gap: 14px;">
+              <!-- RTMP URL -->
+              <div class="form-group">
+                <label class="form-label" for="cfgRtmpUrl">RTMP Ingest URL</label>
+                <input id="cfgRtmpUrl" type="text" class="form-control" value="rtmp://a.rtmp.youtube.com/live2">
+              </div>
+
+              <!-- Resolution & FPS -->
+              <div class="form-grid-2">
+                <div class="form-group">
+                  <label class="form-label" for="cfgResolution">Video Resolution</label>
+                  <select id="cfgResolution" class="form-control">
+                    <option value="3840x2160">4K Ultra HD (3840x2160)</option>
+                    <option value="2560x1440">2K Quad HD (2560x1440)</option>
+                    <option value="1920x1080" selected>1080p Full HD (1920x1080)</option>
+                    <option value="1280x720">720p HD (1280x720)</option>
+                  </select>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label" for="cfgFps">Framerate</label>
+                  <select id="cfgFps" class="form-control">
+                    <option value="60" selected>60 FPS (Ultra Smooth)</option>
+                    <option value="30">30 FPS (Standard)</option>
+                  </select>
+                </div>
+              </div>
+
+              <!-- Bitrates -->
+              <div class="form-grid-2">
+                <div class="form-group">
+                  <label class="form-label" for="cfgVideoBitrate">Video Bitrate</label>
+                  <select id="cfgVideoBitrate" class="form-control">
+                    <option value="3000k">3,000 kbps (720p)</option>
+                    <option value="6000k" selected>6,000 kbps (1080p Full HD Standard)</option>
+                    <option value="9000k">9,000 kbps (1080p Full HD 60fps High)</option>
+                    <option value="14000k">14,000 kbps (2K Quad HD 60fps)</option>
+                    <option value="24000k">24,000 kbps (4K Ultra HD 30fps)</option>
+                    <option value="40000k">40,000 kbps (4K Ultra HD 60fps Max)</option>
+                  </select>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label" for="cfgAudioBitrate">Audio Bitrate</label>
+                  <select id="cfgAudioBitrate" class="form-control">
+                    <option value="320k" selected>320 kbps (Studio Master / Ultra Hi-Fi)</option>
+                    <option value="256k">256 kbps (Broadcast Pro)</option>
+                    <option value="192k">192 kbps (Standard High Quality)</option>
+                  </select>
+                </div>
+              </div>
+
+              <!-- Preset -->
+              <div class="form-group">
+                <label class="form-label" for="cfgPreset">x264 CPU Encoding Preset</label>
+                <select id="cfgPreset" class="form-control">
+                  <option value="ultrafast">ultrafast (Lowest CPU usage)</option>
+                  <option value="superfast">superfast</option>
+                  <option value="veryfast" selected>veryfast (Recommended balance)</option>
+                  <option value="faster">faster</option>
+                  <option value="medium">medium (High visual compression quality)</option>
+                  <option value="slow">slow (Maximum visual quality, high CPU)</option>
+                </select>
+              </div>
+            </div>
+          </details>
+
+          <button id="btnSaveConfig" class="btn btn-primary" style="margin-top: 8px;">
+            Save Encoder Settings
+          </button>
+        </div>
+      </div>
+
+    </aside>
+
+  </main>
+
+  <!-- YouTube Stream Key Guide Modal -->
+  <div id="modalStreamKeyHelp" class="modal-overlay">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 style="font-size: 1.1rem; color: #fff;">How to Get Your YouTube Stream Key</h3>
+        <button id="btnCloseModal" class="btn btn-secondary btn-sm">✕</button>
+      </div>
+      <div class="modal-body">
+        <p>Follow these quick steps to find your YouTube Live RTMP stream key:</p>
+        <ol>
+          <li>Open <strong>YouTube Studio</strong> (<a href="https://studio.youtube.com" target="_blank" style="color: var(--accent-cyan); text-decoration: underline;">studio.youtube.com</a>) in your browser.</li>
+          <li>Click the <strong>"Create"</strong> button (top right) and select <strong>"Go Live"</strong>.</li>
+          <li>Choose <strong>"Stream"</strong> (the webcam/software encoder tab).</li>
+          <li>Under <strong>"Stream Settings"</strong>, you will see <strong>Stream key</strong> (e.g. <code>xxxx-xxxx-xxxx-xxxx-xxxx</code>).</li>
+          <li>Click <strong>"Copy"</strong> and paste it into the <em>YouTube Stream Key</em> box in SongStream!</li>
+        </ol>
+        <p class="help-text">Note: If you have never live streamed before, YouTube requires a one-time 24-hour verification on your channel to enable live streaming.</p>
+      </div>
+      <div class="modal-footer">
+        <button id="btnGotItModal" class="btn btn-primary">Got it</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div id="toastContainer" class="toast-container"></div>
+
+  <!-- Client JavaScript Modules -->
+  <script src="/static/js/visualizer.js?v=13"></script>
+  <script src="/static/js/player.js?v=13"></script>
+  <script src="/static/js/app.js?v=17"></script>
+</body>
+</html>
